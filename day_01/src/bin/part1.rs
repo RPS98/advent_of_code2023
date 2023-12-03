@@ -1,4 +1,3 @@
-// use std::env;
 use test_utils::{get_file_content, get_full_path, write_file_content};
 
 pub fn sum_first_and_last_digits(line: &str) -> u32 {
