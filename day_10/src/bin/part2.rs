@@ -1,4 +1,3 @@
-use day_10::Matrix;
 use test_utils::{get_file_content, get_full_path, write_file_content};
 mod part1;
 use part1::{find_path, process_input, Direction};

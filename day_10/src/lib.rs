@@ -1,5 +1,4 @@
 use std::fmt;
-use std::ops::{Index, IndexMut};
 
 pub struct Matrix<T> {
     pub data: Vec<T>,
@@ -9,7 +8,7 @@ pub struct Matrix<T> {
 
 impl<T: Clone + fmt::Display> Matrix<T> {
     pub fn new(rows: usize, cols: usize, value: T) -> Matrix<T> {
-        let data = vec![value; (rows * cols)];
+        let data = vec![value; rows * cols];
         Matrix { data, rows, cols }
     }
     pub fn at(&self, row_index: usize, col_index: usize) -> &T {
@@ -60,6 +59,27 @@ impl<T: Clone + fmt::Display> Matrix<T> {
         }
         col_vector
     }
+
+    pub fn insert_row(&mut self, row: usize, vector: Vec<T>) {
+        let index = row * self.cols;
+        if vector.len() != self.cols {
+            panic!("Vector length must be equal to number of columns");
+        }
+        self.data.splice(index..index, vector);
+        self.rows += 1;
+    }
+
+    pub fn insert_col(&mut self, col: usize, vector: Vec<T>) {
+        if vector.len() != self.rows {
+            panic!("Vector length must be equal to number of rows");
+        }
+        for (i, value) in vector.iter().enumerate() {
+            let index = i * (self.cols + 1) + col;
+            let value = value.clone();
+            self.data.insert(index, value);
+        }
+        self.cols += 1;
+    }
 }
 
 impl<T: Clone + fmt::Display> fmt::Display for Matrix<T> {
@@ -72,5 +92,36 @@ impl<T: Clone + fmt::Display> fmt::Display for Matrix<T> {
             write!(f, "\n")?;
         }
         std::fmt::Result::Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_insert_row() {
+        let mut matrix = Matrix::new(3, 3, 0);
+        let row_to_insert = vec![1, 1, 1];
+        matrix.insert_row(1, row_to_insert.clone());
+
+        assert_eq!(matrix.rows, 4); // Check if rows increased
+
+        for col in 0..matrix.cols {
+            assert_eq!(*matrix.at(1, col), row_to_insert[col]); // Check inserted row
+        }
+    }
+
+    #[test]
+    fn test_insert_col() {
+        let mut matrix = Matrix::new(3, 3, 0);
+        let col_to_insert = vec![1, 1, 1];
+        matrix.insert_col(1, col_to_insert.clone());
+
+        assert_eq!(matrix.cols, 4); // Check if cols increased
+
+        for row in 0..matrix.rows {
+            assert_eq!(*matrix.at(row, 1), col_to_insert[row]); // Check inserted col
+        }
     }
 }
